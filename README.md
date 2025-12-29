@@ -68,6 +68,9 @@ access_key_secret: "unused_placeholder"
 
 # 若 use_api: false，则需手动填写下方 prompt
 # text_prompt: "rice blast on leaves"
+
+
+
 🚀 运行步骤 (Usage)步骤 1: 修改配置打开 config.yaml，填入你的图片路径 (input_image) 和 API Key。步骤 2: 运行主程序直接运行 grounded_sam_with_RAG.py，程序会自动读取配置文件并执行检测流程。Bashpython grounded_sam_with_RAG.py
 步骤 3: 查看结果运行完成后，请前往 output_dir 配置的目录查看生成的结果图片和 JSON 数据。📂 目录结构 (File Structure)Plaintext.
 ├── config.yaml                 # [核心] 项目配置文件
@@ -77,18 +80,4 @@ access_key_secret: "unused_placeholder"
 ├── segment_anything/           # 分割模块源码
 ├── data/                       # 存放输入图片
 └── outputs/                    # 存放输出结果 (自动生成)
-🔗 引用 (Citation)Original Implementation: Grounded-Segment-Anything
-### 💡 给你的几个重要修改建议：
 
-1.  **关于 API Key 的安全**：
-    * 在上面的模板中，我特意将你的真实 Key (`sk-chry...`) 替换成了 `"YOUR_API_KEY_HERE"`。
-    * **千万不要**把带有你真实 Key 的 `config.yaml` 上传到 GitHub！这会导致你的额度被盗用。
-    * **做法**：上传 GitHub 前，把 Key 删掉或改成占位符。自己在服务器上跑的时候再填进去。
-
-2.  **关于绝对路径**：
-    * 你的 `config.yaml` 里用的是 `/2023110145/...` 这种绝对路径。
-    * 在 README 里，我建议指导用户将其修改为他们自己的路径，或者建议使用相对路径（例如 `./weights/sam.pth`），这样代码移植性更好。
-
-3.  **关于 bert_base_uncased_path**：
-    * 你填写的路径是 `/root/.cache/...`。这是你服务器特有的缓存路径。
-    * 在 README 或代码逻辑里，最好保留 `null` 选项，让其他用户的代码能自动去 HuggingFace 下载，否则他们运行会报错找不到路径。
