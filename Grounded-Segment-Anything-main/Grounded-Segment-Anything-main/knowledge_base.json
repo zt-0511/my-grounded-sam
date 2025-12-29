@@ -1,0 +1,76 @@
+
+[
+  {
+    "disease_name": "Wheat Stripe Rust",
+    "display_name_cn": "小麦条锈病", 
+    "aliases": [
+      "Yellow Rust", 
+      "Stripe Rust", 
+      "Puccinia striiformis", 
+      "linear yellow lesions on leaves", 
+      "yellow stripes"
+    ],
+    "target_type": "Texture",
+    "grounding_prompt": "individual yellow linear fungal lesion",
+    "thresholds": {
+      "box": 0.25,
+      "area": 0.80
+    },
+    "refine_strategy": "no_closing",
+    "treatment": "Use Triadimefon or Tebuconazole. Monitor in early spring."
+  },
+  {
+    "disease_name": "Wheat Aphid",
+    "display_name_cn": "麦蚜",
+    "aliases": [
+      "Aphids", 
+      "Sitobion avenae", 
+      "tiny green insects", 
+      "small clustering bugs"
+    ],
+    "target_type": "Tiny Object",
+    "grounding_prompt": "tiny insect body",
+    "thresholds": {
+      "box": 0.20,
+      "area": 0.20
+    },
+    "refine_strategy": "tiny_mode",
+    "treatment": "Use Imidacloprid or Acetamiprid. Protect ladybugs."
+  },
+  {
+    "disease_name": "Wheat Powdery Mildew",
+    "display_name_cn": "小麦白粉病",
+    "aliases": [
+      "Powdery Mildew", 
+      "Blumeria graminis", 
+      "white powder patches on leaves", 
+      "white mold spots"
+    ],
+    "target_type": "Texture",
+    "grounding_prompt": "individual white mold patch",
+    "thresholds": {
+      "box": 0.30,
+      "area": 0.80
+    },
+    "refine_strategy": "normal",
+    "treatment": "Use Triadimefon or Ether bacteria ester. Control nitrogen fertilizer."
+  },
+  {
+    "disease_name": "Armyworm",
+    "display_name_cn": "粘虫",
+    "aliases": [
+      "Oriental Armyworm", 
+      "Mythimna separata", 
+      "larva caterpillar", 
+      "cylindrical worm body"
+    ],
+    "target_type": "Tiny Object",
+    "grounding_prompt": "soft segmented larva body with distinct head and prolegs",
+    "thresholds": {
+      "box": 0.25,
+      "area": 0.30
+    },
+    "refine_strategy": "tiny_mode",
+    "treatment": "Spray Lambda-cyhalothrin or Emamectin benzoate before 3rd instar."
+  }
+]

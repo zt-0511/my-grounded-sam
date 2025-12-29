@@ -1,0 +1,36 @@
+# config.yaml
+# Grounding DINO 配置
+config: "GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py"
+grounded_checkpoint: "/2023110145/Grounded-Segment-Anything-main/Grounded-Segment-Anything-main/groundingdino_swint_ogc.pth"
+# bert_base_uncased_path: null  # 可选，留 null 即可
+bert_base_uncased_path: "/root/.cache/huggingface/hub/models--bert-base-uncased/snapshots/86b5e0934494bd15c9632b12f734a8a67f723594"
+
+# SAM 配置
+sam_version: "vit_h"
+sam_checkpoint: "/2023110145/Grounded-Segment-Anything-main/Grounded-Segment-Anything-main/sam_vit_h_4b8939.pth"
+sam_hq_checkpoint: null
+use_sam_hq: false
+
+# 输入输出
+input_image: "/2023110145/Grounded-Segment-Anything-main/data/wmremove-transformed (1).jpeg"
+output_dir: "/2023110145/Grounded-Segment-Anything-main/Grounded-Segment-Anything-main/outputs"
+
+# 模型阈值
+box_threshold: 0.15
+text_threshold: 0.15
+max_area_threshold: 0.5
+
+# 虫害模式：严格限制，防止把整片叶子当成虫子 (建议 0.05 - 0.15)
+max_area_threshold_pest: 0.2
+
+# 病害模式：宽容限制，允许病斑覆盖大半个叶子 (建议 0.50 - 0.80)
+max_area_threshold_disease: 0.60
+device: "cuda"  # 或 "cpu"
+
+# Qwen-VL API 配置（启用 use_api 时必须填写）
+use_api: true
+access_key_id: "sk-chrynhxxkuvqbqfwukjvkbmeodrvcoxpigkjbiozbqkhtiqs"        # ← 替换为你的 AK
+access_key_secret: "unused_placeholder"
+
+# 若 use_api: false，则需提供：
+# text_prompt: "rice blast on leaves"

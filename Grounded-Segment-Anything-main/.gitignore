@@ -1,0 +1,17 @@
+# 忽略权重文件
+*.pth
+*.pt
+*.onnx
+*.weights
+*.zip
+
+# 忽略数据集和输出结果
+outputs/
+data/
+__pycache__/
+*.pyc
+.DS_Store
+
+# 忽略 IDE 配置
+.idea/
+.vscode/
