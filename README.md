@@ -1,68 +1,94 @@
-# Grounded-Segment-Anything (My Custom Implementation)
+📋 推荐的 README.md 内容 (请新建文件粘贴)Markdown# Agri-Grounded-SAM: 基于大模型与 RAG 的农作物病虫害智能检测系统
 
-本项目基于 [IDEA-Research/Grounded-Segment-Anything](https://github.com/IDEA-Research/Grounded-Segment-Anything)，实现了基于文本提示的物体检测与分割 (Grounding DINO + SAM)。
+> **西北农林科技大学 - 大学生科创项目**
+>
+> 本项目基于 [Grounded-Segment-Anything](https://github.com/IDEA-Research/Grounded-Segment-Anything) 进行二次开发，融合了 **Qwen-VL 大模型**与 **RAG (检索增强生成)** 技术，旨在解决复杂背景下的农作物病害与虫害的自适应检测与分割问题。
+
+## ✨ 核心创新点 (Key Features)
+
+1.  **全配置驱动 (Config-Driven)**: 摒弃了繁琐的命令行参数，所有运行参数（模型路径、阈值、API密钥）均通过 `config.yaml` 统一管理，操作更加简便。
+2.  **自适应阈值策略 (Adaptive Thresholding)**:
+    * 针对**虫害 (Pest)**：采用严格的面积限制 (`max_area_threshold_pest`)，防止将背景误检为微小害虫。
+    * 针对**病害 (Disease)**：采用宽容的面积限制 (`max_area_threshold_disease`)，允许病斑覆盖大面积叶片。
+3.  **大模型辅助推理**: 集成 Qwen-VL API，通过 RAG 模块自动分析图片内容并生成精准的检测提示词 (Text Prompt)，无需人工手动输入类别。
 
 ## 🛠️ 环境安装 (Installation)
 
-推荐使用 Anaconda 创建虚拟环境：
+### 1. 基础环境配置
+建议使用 Conda 创建独立的虚拟环境 (Python 3.8+)：
 
 ```bash
-# 1. 创建并激活环境
-conda create -n grounded-sam python=3.8
-conda activate grounded-sam
-
-# 2. 安装 PyTorch (请根据你的 CUDA 版本调整)
+conda create -n grounded-sam-rag python=3.8
+conda activate grounded-sam-rag
+2. 安装依赖Bash# 1. 安装 PyTorch (根据你的 CUDA 版本调整)
 pip install torch torchvision --index-url [https://download.pytorch.org/whl/cu118](https://download.pytorch.org/whl/cu118)
 
-# 3. 安装依赖库
+# 2. 安装项目依赖
 pip install -r requirements.txt
+
+# 3. 安装核心模块
 python -m pip install -e segment_anything
-python -m pip install -e GroundingDINO
-```
+pip install --no-build-isolation -e GroundingDINO
+📥 模型权重准备 (Model Weights)请下载以下核心权重文件，并建议放置在项目根目录下（需在 config.yaml 中修改对应路径）：模型名称说明下载地址groundingdino_swint_ogc.pth用于目标检测点击下载sam_vit_h_4b8939.pth用于图像分割 (SAM Huge)点击下载bert-base-uncased文本编码器(首次运行会自动下载，无需手动操作)⚙️ 配置文件说明 (Configuration)本项目运行完全依赖 config.yaml。在运行前，请务必根据你的环境修改以下参数。文件位置: ./config.yamlYAML# ================= 模型路径配置 =================
+config: "GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py"
+# ⚠️ 请修改为你的本地绝对路径
+grounded_checkpoint: "/path/to/your/groundingdino_swint_ogc.pth" 
+sam_checkpoint: "/path/to/your/sam_vit_h_4b8939.pth"
+bert_base_uncased_path: null  # 留 null 即可自动下载
 
-## 📥 模型权重下载 (Model Weights)
+# ================= SAM 配置 =================
+sam_version: "vit_h"
+use_sam_hq: false
 
-**注意：** 由于模型权重文件较大，未包含在仓库中。请在运行前手动下载以下权重文件，并放置在项目根目录下。
+# ================= 输入输出 =================
+# 待检测图片的路径
+input_image: "./data/test_image.jpg"
+# 结果保存目录
+output_dir: "./outputs"
 
-### 1. 下载 GroundingDINO 权重
-```bash
-wget [https://github.com/IDEA-Research/GroundingDINO/releases/download/v0.1.0-alpha/groundingdino_swint_ogc.pth](https://github.com/IDEA-Research/GroundingDINO/releases/download/v0.1.0-alpha/groundingdino_swint_ogc.pth)
-```
+# ================= 核心阈值参数 =================
+device: "cuda"          # 使用 GPU
+box_threshold: 0.15     # 检测框置信度阈值
+text_threshold: 0.15    # 文本匹配阈值
+max_area_threshold: 0.5 # 通用最大面积阈值
 
-### 2. 下载 SAM 权重 (ViT-H)
-```bash
-wget [https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth](https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth)
-```
+# --- 🎯 创新点：病虫害差异化阈值 ---
+# 虫害模式：严格限制，防止把整片叶子当成虫子 (建议 0.05 - 0.15)
+max_area_threshold_pest: 0.2
 
-> **提示**：如果你无法使用 `wget`，请直接点击链接下载后手动上传到服务器。
+# 病害模式：宽容限制，允许病斑覆盖大半个叶子 (建议 0.50 - 0.80)
+max_area_threshold_disease: 0.60
 
-## 🚀 快速开始 (Quick Start)
+# ================= 大模型 API 配置 =================
+# 是否启用 LLM 自动识别
+use_api: true
+# ⚠️ 替换为你的 DashScope/Qwen API Key
+access_key_id: "YOUR_API_KEY_HERE" 
+access_key_secret: "unused_placeholder"
 
-### 运行 Demo
-使用以下命令对图片进行检测和分割：
+# 若 use_api: false，则需手动填写下方 prompt
+# text_prompt: "rice blast on leaves"
+🚀 运行步骤 (Usage)步骤 1: 修改配置打开 config.yaml，填入你的图片路径 (input_image) 和 API Key。步骤 2: 运行主程序直接运行 grounded_sam_with_RAG.py，程序会自动读取配置文件并执行检测流程。Bashpython grounded_sam_with_RAG.py
+步骤 3: 查看结果运行完成后，请前往 output_dir 配置的目录查看生成的结果图片和 JSON 数据。📂 目录结构 (File Structure)Plaintext.
+├── config.yaml                 # [核心] 项目配置文件
+├── grounded_sam_with_RAG.py    # [核心] 主运行脚本
+├── requirements.txt            # 依赖列表
+├── GroundingDINO/              # 检测模块源码
+├── segment_anything/           # 分割模块源码
+├── data/                       # 存放输入图片
+└── outputs/                    # 存放输出结果 (自动生成)
+🔗 引用 (Citation)Original Implementation: Grounded-Segment-Anything
+### 💡 给你的几个重要修改建议：
 
-```bash
-export CUDA_VISIBLE_DEVICES=0
-python grounded_sam_demo.py \
-  --config GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py \
-  --grounded_checkpoint groundingdino_swint_ogc.pth \
-  --sam_checkpoint sam_vit_h_4b8939.pth \
-  --input_image assets/demo1.jpg \
-  --output_dir "outputs" \
-  --box_threshold 0.3 \
-  --text_threshold 0.25 \
-  --text_prompt "bear" \
-  --device "cuda"
-```
+1.  **关于 API Key 的安全**：
+    * 在上面的模板中，我特意将你的真实 Key (`sk-chry...`) 替换成了 `"YOUR_API_KEY_HERE"`。
+    * **千万不要**把带有你真实 Key 的 `config.yaml` 上传到 GitHub！这会导致你的额度被盗用。
+    * **做法**：上传 GitHub 前，把 Key 删掉或改成占位符。自己在服务器上跑的时候再填进去。
 
-运行成功后，结果将保存在 `outputs/` 文件夹中。
+2.  **关于绝对路径**：
+    * 你的 `config.yaml` 里用的是 `/2023110145/...` 这种绝对路径。
+    * 在 README 里，我建议指导用户将其修改为他们自己的路径，或者建议使用相对路径（例如 `./weights/sam.pth`），这样代码移植性更好。
 
-## 📂 目录结构说明
-* `GroundingDINO/`: 检测模型源码
-* `segment_anything/`: 分割模型源码
-* `assets/`: 测试图片
-* `outputs/`: 结果输出目录 (默认被 git 忽略)
-* `weights/`: (可选) 存放权重的目录
-
-## 🔗 引用与致谢
-本项目参考自官方仓库：[IDEA-Research/Grounded-Segment-Anything](https://github.com/IDEA-Research/Grounded-Segment-Anything)
+3.  **关于 bert_base_uncased_path**：
+    * 你填写的路径是 `/root/.cache/...`。这是你服务器特有的缓存路径。
+    * 在 README 或代码逻辑里，最好保留 `null` 选项，让其他用户的代码能自动去 HuggingFace 下载，否则他们运行会报错找不到路径。
