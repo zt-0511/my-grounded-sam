@@ -20,7 +20,16 @@
 
 ---
 
-## 🛠️ 环境安装 (Installation)
+## Installation
+
+The code requires `python>=3.8`, as well as `pytorch>=1.7` and `torchvision>=0.8`. Please follow the instructions [here](https://pytorch.org/get-started/locally/) to install both PyTorch and TorchVision dependencies. Installing both PyTorch and TorchVision with CUDA support is strongly recommended.
+
+
+
+### Install without Docker
+
+You should set the environment variable manually as follows if you want to build a local GPU environment for Grounded-SAM:
+
 
 ### 1. 基础环境配置
 
@@ -31,25 +40,70 @@ conda create -n grounded-sam-rag python=3.8
 conda activate grounded-sam-rag
 ```
 
-### 2. 安装依赖
+```bash
+export AM_I_DOCKER=False
+export BUILD_WITH_CUDA=True
+export CUDA_HOME=/path/to/cuda-11.3/  ??不一定，可能会遇到错误
+```
+
+Install Segment Anything:
 
 ```bash
-# 1. 安装 PyTorch（请根据 CUDA 版本调整，以下为 11.8 示例）
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
-
-# 2. 安装项目依赖
-pip install -r requirements.txt
-
-# 3. 安装核心模块
 python -m pip install -e segment_anything
+```
+
+Install Grounding DINO:
+
+```bash
 pip install --no-build-isolation -e GroundingDINO
+```
+
+Install diffusers:
+
+```bash
+pip install --upgrade diffusers[torch]
+```
+
+
+Install RAM & Tag2Text:
+
+```bash
+git clone https://github.com/xinyu1205/recognize-anything.git
+pip install -r ./recognize-anything/requirements.txt
+pip install -e ./recognize-anything/
 ```
 
 ---
 
+### Optional Dependencies
+
+The following optional dependencies are necessary for mask post-processing, saving masks in COCO format, running example notebooks, and exporting the model in ONNX format. `jupyter` is also required to run the example notebooks.
+
+```bash
+pip install opencv-python pycocotools matplotlib onnxruntime onnx ipykernel
+```
+
+
+
+## Step 1: Download the pretrained weights
+
+```bash
+cd Grounded-Segment-Anything
+
+wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth
+wget https://github.com/IDEA-Research/GroundingDINO/releases/download/v0.1.0-alpha/groundingdino_swint_ogc.pth
+```
+
+## Step 2: Running Project
+
+```bash
+export CUDA_VISIBLE_DEVICES=0
+python grounded_sam_with_RAG.py
+```
+
 ## 📥 模型权重准备 (Model Weights)
 
-请下载以下核心权重文件，并建议放置在项目根目录下（需在 `config.yaml` 中修改对应路径）：
+如果上面 wget 命令没有正常请下载以下核心权重文件，并建议放置在项目根目录下（需在 `config.yaml` 中修改对应路径）：
 
 | 模型名称                 | 说明                   | 下载地址         |
 |--------------------------|------------------------|------------------|
